@@ -1,0 +1,34 @@
+version: '3.4'
+
+services:
+  barigui.microservice.1:
+    image: ${DOCKER_REGISTRY-}bariguimicroservice
+    build:
+      context: .
+      dockerfile: src/Barigui.MicroService/Dockerfile
+    environment:
+      Settings__ServiceName: "MicroService1"
+    depends_on:
+      - rabbitmq-server
+  barigui.microservice.2:
+    image: ${DOCKER_REGISTRY-}bariguimicroservice
+    build:
+      context: .
+      dockerfile: src/Barigui.MicroService/Dockerfile
+    environment:
+      Settings__ServiceName: "MicroService2"
+    depends_on:
+      - rabbitmq-server
+  rabbitmq-server:
+    image: "rabbitmq:3-management"
+    hostname: "rabbit"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "BARIGUI"
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    labels:
+      NAME: "rabbit"

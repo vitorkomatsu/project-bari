@@ -1,0 +1,19 @@
+FROM mcr.microsoft.com/dotnet/core/runtime:2.2-stretch-slim AS base
+WORKDIR /app
+
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
+WORKDIR /src
+COPY ["Barigui.MicroService/Barigui.MicroService.csproj", "Barigui.MicroService/"]
+COPY ["Barigui.CrossCutting.IoC/Barigui.CrossCutting.IoC.csproj", "Barigui.CrossCutting.IoC/"]
+RUN dotnet restore "Barigui.MicroService/Barigui.MicroService.csproj"
+COPY . .
+WORKDIR "/src/Barigui.MicroService"
+RUN dotnet build "Barigui.MicroService.csproj" -c Release -o /app
+
+FROM build AS publish
+RUN dotnet publish "Barigui.MicroService.csproj" -c Release -o /app
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app .
+ENTRYPOINT ["dotnet", "Barigui.MicroService.dll"]
